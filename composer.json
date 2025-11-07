@@ -1,0 +1,15 @@
+{
+    "name": "jeffersonmwanaut/htmltag",
+    "description": "HtmlTag is a lightweight HTML builder designed to programmatically generate HTML tags in PHP without manually concatenating strings.",
+    "autoload": {
+        "psr-4": {
+            "HtmlTag\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Jefferson Mwanaut"
+        }
+    ],
+    "require": {}
+}
