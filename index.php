@@ -6,7 +6,7 @@ use HtmlTag\Article;
 use HtmlTag\Form\Select;
 
 $div = (new HtmlTag('div'))
-    ->appendText('Welcome ')
+    ->append('Welcome ')
     ->appendChild((new HtmlTag('strong'))->appendText('Jefferson'))
     ->appendText('!');
 echo $div;
