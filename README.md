@@ -13,6 +13,7 @@ Lightweight HTML builder designed to programmatically generate HTML tags in PHP 
 - [Rendering Options](#rendering-options)
 - [Integration in your project](#integration-in-your-project)
 - [Summary of Common Methods](#summary-of-common-methods)
+- [Creators](#creators)
 
 ## Purpose of `HtmlTag`
 
@@ -111,7 +112,7 @@ Output:
 
 ## Self-closing Tags
 
-Tags like <img>, <input>, <br>, etc. automatically close properly:
+Tags like `<img>`, `<input>`, `<br>`, etc. automatically close properly:
 
 ```php
 echo (new HtmlTag('img'))
@@ -189,3 +190,10 @@ foreach ($users as $user) {
 | `appendHtml($html)`       | Set raw inner HTML                                |
 | `appendChild($childTag)`  | Append another HTMLTag as a child                 |
 | `render()`                | Render the tag as a string                        |
+
+## Creators
+
+**Jefferson Mwanaut**
+
+- <https://github.com/jeffersonmwanaut>
+- <https://www.linkedin.com/in/jeffersonmwanaut>
