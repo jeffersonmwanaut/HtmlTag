@@ -173,8 +173,8 @@ For instance:
 ```php
 foreach ($users as $user) {
     echo (new HtmlTag('tr'))
-        ->append((new HtmlTag('td'))->text($user['name']))
-        ->append((new HtmlTag('td'))->text($user['email']))
+        ->appendChild((new HtmlTag('td'))->text($user['name']))
+        ->appendChild((new HtmlTag('td'))->text($user['email']))
         ->render();
 }
 ```
