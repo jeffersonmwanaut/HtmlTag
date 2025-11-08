@@ -181,15 +181,16 @@ foreach ($users as $user) {
 
 ## Summary of Common Methods
 
-| Methods                   | Description                                       |
-| ------------------------- | ------------------------------------------------- |
-| `__construct($tagName)`   | Create a new HTML tag                             |
-| `attr($name, $value)`     | Add or set an attribute                           |
-| `attrs($array)`           | Add multiple attributes at once (if supported)    |
-| `appendText($text)`       | Set inner text                                    |
-| `appendHtml($html)`       | Set raw inner HTML                                |
-| `appendChild($childTag)`  | Append another HTMLTag as a child                 |
-| `render()`                | Render the tag as a string                        |
+| Methods                   | Description                                                               |
+| ------------------------- | ------------------------------------------------------------------------- |
+| `__construct($tagName)`   | Create a new HTML tag                                                     |
+| `attr($name, $value)`     | Add or set an attribute                                                   |
+| `attrs($array)`           | Add multiple attributes at once (if supported)                            |
+| `append($content)`        | Universal append alias — smartly handles text, HTML, or HtmlTag children  |
+| `appendText($text)`       | Set inner text                                                            |
+| `appendHtml($html)`       | Set raw inner HTML                                                        |
+| `appendChild($childTag)`  | Append another HTMLTag as a child                                         |
+| `render()`                | Render the tag as a string                                                |
 
 ## Creators
 
