@@ -37,7 +37,7 @@ This produces:
 
 ## Directory Structure
 
-```css
+```
 src/
  ├── HtmlTag.php
  ├── Form/
