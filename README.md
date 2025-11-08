@@ -4,6 +4,7 @@ Lightweight HTML builder designed to programmatically generate HTML tags in PHP 
 ## Table of contents
 
 - [Purpose of HtmlTag](#purpose-of-htmltag)
+- [Directory Structure](#directory-structure)
 - [Basic Structure](#basic-structure)
 - [Setting Attributes](#setting-attributes)
 - [Adding Text or Inner HTML](#adding-text-or-inner-html)
@@ -32,6 +33,21 @@ This produces:
 
 ```html
 <a href="https://zanabler.com">Visit Zanabler</a>
+```
+
+## Directory Structure
+
+```css
+src/
+ ├── HtmlTag.php
+ ├── Form/
+ │   ├── Form.php
+ │   ├── Input.php
+ │   ├── Label.php
+ │   ├── Select.php
+ │   ├── Option.php
+ │   ├── Button.php
+ │   └── ...
 ```
 
 ## Basic Structure
@@ -151,6 +167,57 @@ Output:
   <label for="email">Email:</label>
   <input type="email" id="email" name="email" class="form-control">
 </div>
+```
+
+### Example: Building a form
+
+```php
+use HtmlTag\Form\Form;
+use HtmlTag\Form\Input;
+use HtmlTag\Form\Label;
+use HtmlTag\Form\Button;
+
+$form = (new Form())
+    ->attr('action', '/submit')
+    ->attr('method', 'post')
+    ->appendChild((new Label('Name:'))->attr('for', 'name'))
+    ->appendChild((new Input('text', 'name'))->attr('id', 'name'))
+    ->appendChild((new Button('Submit'))->attr('type', 'submit'));
+
+echo $form; // Outputs the complete HTML
+```
+
+Output:
+
+```html
+<form action="/submit" method="post">
+    <label for="name">Name:</label>
+    <input type="text" name="name" id="name">
+    <button type="submit">Submit</button>
+</form>
+```
+
+### Example: Working with `<select>` and `<option>`
+
+```php
+use HtmlTag\Form\Select;
+use HtmlTag\Form\Option;
+
+$select = new Select('country');
+$select
+    ->appendChild(new Option('CD', 'Congo'))
+    ->appendChild(new Option('KE', 'Kenya')->attr('selected', true));
+
+echo $select;
+```
+
+Output:
+
+```html
+<select name="country">
+    <option value="CD">Congo</option>
+    <option value="KE" selected>Kenya</option>
+</select>
 ```
 
 ## Rendering Options
