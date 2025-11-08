@@ -70,6 +70,29 @@ class HtmlTag
     }
 
     /**
+     * Universal append alias — smartly handles text, HTML, or HtmlTag children.
+     *
+     * @param mixed $content Text, HtmlTag instance, or raw HTML
+     */
+    public function append(mixed $content): static
+    {
+        if ($content instanceof HtmlTag) {
+            return $this->appendChild($content);
+        }
+
+        if (is_string($content)) {
+            // Detect raw HTML vs text (simple heuristic)
+            if (preg_match('/<[^>]+>/', $content)) {
+                return $this->appendHtml($content);
+            }
+            return $this->appendText($content);
+        }
+
+        // Ignore unsupported types gracefully
+        return $this;
+    }
+
+    /**
      * Build attributes into HTML string
      */
     protected function buildAttributes(): string
