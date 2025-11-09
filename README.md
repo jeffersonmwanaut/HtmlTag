@@ -25,7 +25,7 @@ use HtmlTag\HtmlTag;
 
 echo (new HtmlTag('a'))
     ->attr('href', 'https://zanabler.com')
-    ->appendText('Visit Zana')
+    ->appendText('Visit Zanabler')
     ->render();
 ```
 
@@ -109,9 +109,9 @@ You can append child tags using .appendChild($childTag):
 ```php
 $ul = new HtmlTag('ul');
 
-$ul->appendChild((new HtmlTag('li'))->text('Home'))
-   ->appendChild((new HtmlTag('li'))->text('About'))
-   ->appendChild((new HtmlTag('li'))->text('Contact'));
+$ul->appendChild((new HtmlTag('li'))->appendText('Home'))
+   ->appendChild((new HtmlTag('li'))->appendText('About'))
+   ->appendChild((new HtmlTag('li'))->appendText('Contact'));
 
 echo $ul->render();
 ```
@@ -150,7 +150,7 @@ Output:
 ```php
 $formGroup = (new HtmlTag('div'))
     ->attr('class', 'form-group')
-    ->appendChild((new HtmlTag('label'))->attr('for', 'email')->text('Email:'))
+    ->appendChild((new HtmlTag('label'))->attr('for', 'email')->appendText('Email:'))
     ->appendChild((new HtmlTag('input'))
                         ->attr('type', 'email')
                         ->attr('id', 'email')
@@ -240,8 +240,8 @@ For instance:
 ```php
 foreach ($users as $user) {
     echo (new HtmlTag('tr'))
-        ->appendChild((new HtmlTag('td'))->text($user['name']))
-        ->appendChild((new HtmlTag('td'))->text($user['email']))
+        ->appendChild((new HtmlTag('td'))->appenText($user['name']))
+        ->appendChild((new HtmlTag('td'))->appendText($user['email']))
         ->render();
 }
 ```
