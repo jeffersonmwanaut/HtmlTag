@@ -6,7 +6,7 @@
             "name": "bootstrap" 
         },
         "textareaHints": [
-             "description",
+            "description",
             "comment",
             "detail",
             "bio",
