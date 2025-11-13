@@ -13,6 +13,7 @@ Lightweight HTML builder designed to programmatically generate HTML tags in PHP 
 - [Practical Examples](#practical-examples)
 - [Rendering Options](#rendering-options)
 - [Integration in your project](#integration-in-your-project)
+- [Form](#form)
 - [Summary of Common Methods](#summary-of-common-methods)
 - [Creators](#creators)
 
