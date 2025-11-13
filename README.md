@@ -38,22 +38,19 @@ This produces:
 ## Directory Structure
 
 ```
-src/
- ├── Form/
- │   ├── Button.php
- │   ├── DataList.php
+HtmlTag/
+ ├── js/
+ │   └── form-enhancer.js
+ ├── src/
+ │   ├── Form/
+ │   ├── List/
+ │   ├── Table/
+ │   ├── Article.php
+ │   ├── Aside.php
  │   └── ...
- ├── List/
- │   ├── ListItem.php
- │   ├── OrderedList.php
- │   └── ...
- ├── Table/
- │   ├── Table.php
- │   ├── TableBody.php
- │   └── ...
- ├── Article.php
- ├── Aside.php
- └── ...
+ ├── vendor/
+ ├── config.json
+ └── README.md
 ```
 
 ## Basic Structure
@@ -251,6 +248,168 @@ foreach ($users as $user) {
         ->render();
 }
 ```
+
+## Form
+### Form Builder
+
+`HtmlTag\form\FormBuilder` uses reflection to automatically generate HTML forms based on your entity classes, while remaining fully customizable.
+
+It offers the following features:
+
+- Automatic form generation from entity classes using Reflection.
+- Type-aware controls (text, number, checkbox, select, textarea, etc.).
+- Smart textarea detection using configurable text hints.
+- Configurable styling (Bootstrap, Tailwind, or custom CSS classes).
+- Dependency injection support for configuration and services.
+- Separation of markup and logic — produces HTML elements via HtmlTag abstraction.
+- Customizable input labels with automatic spacing for camelCase or PascalCase names.
+
+#### Example Usage
+
+Entity
+
+```php
+class Person
+{
+    public string $firstName;
+    public string $lastName;
+    public string $bio;
+    public bool $isEmployee;
+    public array $skills = ['PHP', 'C#', 'JavaScript'];
+}
+```
+
+Generate the Form
+
+```php
+use HtmlTag\Form\FormBuilder;
+
+$person = new Person();
+$form = FormBuilder::create($person, '/submit', 'post');
+echo $form;
+```
+
+Generates HTML automatically:
+
+```html
+<form action="/submit" method="post" enctype="multipart/form-data">
+  <div>
+    <label for="firstName">First Name</label>
+    <input type="text" name="firstName" value="">
+  </div>
+  <div>
+    <label for="bio">Bio</label>
+    <textarea name="bio"></textarea>
+  </div>
+  <div>
+    <label for="isEmployee">Is Employee</label>
+    <input type="checkbox" name="isEmployee">
+  </div>
+  <div>
+    <label for="skills">Skills</label>
+    <select name="skills">
+      <option>PHP</option>
+      <option>C#</option>
+      <option>JavaScript</option>
+    </select>
+  </div>
+</form>
+```
+
+### Configuration
+
+You can define your form behavior through the `config.json` file located outside the `src/` folder.
+
+Example: `config.json`
+
+```json
+{
+    "form":
+    {
+        "style": {
+            "type": "framework", 
+            "name": "bootstrap" 
+        }
+    }
+}
+```
+
+You can change `"type": "framework"` to `"custom"` if you want to use your own CSS class, e.g.:
+
+```json
+"style": { "type": "custom", "name": "my-form-styles" }
+```
+
+**Loading via Dependency Injection**
+
+```php
+use HtmlTag\Config;
+
+$configPath = __DIR__ . '/config.json';
+$config = new Config($configPath);
+$formBuilder = new FormBuilder($config);
+
+$form = $formBuilder->create($person);
+```
+
+### Styling Support
+
+You can style forms using popular frameworks or custom classes.
+`Form` and `FormBuilder` read the preferred style from the config file or can be changed at runtime.
+
+**Supported Styles**
+
+| Style Option | Description                                                   |
+| ------------ | ------------------------------------------------------------- |
+| `bootstrap`  | Adds Bootstrap 5 classes (`form-group`, `form-control`, etc.) |
+| `tailwind`   | Adds TailwindCSS utility classes                              |
+| `custom`     | Applies developer-defined classes                             |
+| `none`       | Outputs raw HTML without styling                              |
+
+Example configuration:
+
+```json
+{
+    "form":
+    {
+        "style": {
+            "type": "framework", 
+            "name": "bootstrap" 
+        }
+    }
+}
+```
+
+Add this at the bottom of your page or in your layout:
+
+```html
+<script src="js/form-enhancer.js"></script>
+```
+
+It will automatically detect any form with `data-enhance-style`.
+
+**Example Rendered Output (Bootstrap mode)**
+
+```html
+<form action="/submit.php" method="post" enctype="multipart/form-data" data-enhance-style="bootstrap">
+  <div class="mb-3">
+    <label for="name" class="form-label">Name</label>
+    <input name="name" type="text" class="form-control">
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+```
+
+### Automatic Label Formatting
+
+Property names like `isEmployee`, `firstName`, or `last_name` are automatically converted to:
+
+- Is Employee
+- First Name
+- Last Name
+
+The builder supports both camelCase and snake_case formats.
+
 
 ## Summary of Common Methods
 
