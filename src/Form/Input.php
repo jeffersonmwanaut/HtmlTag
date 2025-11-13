@@ -1,21 +1,14 @@
 <?php
 namespace HtmlTag\Form;
 
-use HtmlTag\HtmlTag;
-
-class Input extends HtmlTag
+class Input extends FormControl
 {
     public function __construct(string $type = 'text', string $name = '', string $id = '', string $value = '') {
-        parent::__construct('input');
+        parent::__construct(tagName: 'input', name: $name, id: $id);
         $this->attr('type', strtolower($type));
-        if ($name !== '') {
-            $this->attr('name', $name);
-        }
+        $this->attr('placeholder', "Enter {$this->humanize($name)}");
         if ($value !== '') {
             $this->attr('value', $value);
-        }
-        if ($id !== '') {
-            $this->attr('id', $id);
         }
     }
 }

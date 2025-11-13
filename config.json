@@ -1,0 +1,39 @@
+{
+    "form":
+    {
+        "style": {
+            "type": "framework", 
+            "name": "bootstrap" 
+        },
+        "textareaHints": [
+             "description",
+            "comment",
+            "detail",
+            "bio",
+            "note",
+            "address",
+            "message",
+            "content",
+            "summary",
+            "remark",
+            "feedback",
+            "observation",
+            "instruction",
+            "response",
+            "review",
+            "explanation",
+            "reason",
+            "objective",
+            "introduction",
+            "overview",
+            "purpose",
+            "story",
+            "statement",
+            "requirement",
+            "answer",
+            "justification",
+            "text",
+            "body"
+        ]
+    }
+}

@@ -25,7 +25,7 @@ class HtmlTag
     /**
      * Set an attribute
      */
-    public function attr(string $name, $value): static
+    public function attr(string $name, $value): self
     {
         // Normalize attribute name to lowercase for consistency
         $name = strtolower($name);
@@ -37,7 +37,7 @@ class HtmlTag
     /**
      * Set multiple attributes
      */
-    public function attrs(array $attributes): static
+    public function attrs(array $attributes): self
     {
         foreach ($attributes as $name => $value) {
             $name = strtolower($name);
@@ -47,14 +47,14 @@ class HtmlTag
     }
 
      /** Append escaped text */
-    public function appendText(string $text): static
+    public function appendText(string $text): self
     {
         $this->children[] = new TextNode($text);
         return $this;
     }
 
     /** Append raw HTML fragment (unescaped) */
-    public function appendHtml(string $html): static
+    public function appendHtml(string $html): self
     {
         $this->children[] = new RawHtml($html);
         return $this;
@@ -63,7 +63,7 @@ class HtmlTag
     /**
      * Append a child tag
      */
-    public function appendChild(HtmlTag $child): static
+    public function appendChild(HtmlTag $child): self
     {
         $this->children[] = $child;
         return $this;
@@ -74,7 +74,7 @@ class HtmlTag
      *
      * @param mixed $content Text, HtmlTag instance, or raw HTML
      */
-    public function append(mixed $content): static
+    public function append(mixed $content): self
     {
         if ($content instanceof HtmlTag) {
             return $this->appendChild($content);
@@ -144,5 +144,17 @@ class HtmlTag
     public function __toString(): string
     {
         return $this->render();
+    }
+
+    protected function humanize(string $text): string
+    {
+        // Replace underscores with spaces
+        $text = str_replace('_', ' ', $text);
+
+        // Add spaces before uppercase letters in camelCase or PascalCase
+        $text = preg_replace('/(?<!\ )[A-Z]/', ' $0', $text);
+
+        // Trim and capitalize the first letter of each word
+        return ucwords(trim($text));
     }
 }
