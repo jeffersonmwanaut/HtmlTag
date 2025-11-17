@@ -2,10 +2,13 @@
 namespace HtmlTag\Form;
 
 use HtmlTag\HtmlTag;
+use HtmlTag\Config;
 
 class Form extends HtmlTag
 {
-    public function __construct(string $action = '#', string $method = 'post', ?array $styleConfig = null) 
+    protected Config $config;
+
+    public function __construct(string $action = '#', string $method = 'post', ?Config $config = null) 
     {
         parent::__construct('form');
         $this->attr('action', $action);
@@ -15,9 +18,14 @@ class Form extends HtmlTag
             $this->attr('enctype', 'multipart/form-data');
         }
 
-        // Apply styling based on configuration
-        if ($styleConfig) {
-            $this->applyStyleConfig($styleConfig);
+        if ($config) {
+            $this->config = $config;
+
+            // Apply styling based on configuration
+            $styleConfig = $config->get('form.style');
+            if ($styleConfig) {
+                $this->applyStyleConfig($styleConfig);
+            }
         }
     }
 
@@ -42,5 +50,13 @@ class Form extends HtmlTag
         } elseif ($type === 'custom' && !empty($name)) {
             $this->attr('class', $name);
         }
+    }
+
+    public function addCsrfToken(string $token, string $name = '_csrf_token'): self
+    {
+        $this->appendChild(
+            (new Input('hidden', $name))->attr('value', $token)
+        );
+        return $this;
     }
 }
