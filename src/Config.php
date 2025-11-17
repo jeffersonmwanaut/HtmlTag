@@ -20,8 +20,27 @@ class Config
         $this->config = $config;
     }
 
+    /**
+     * Supports both simple keys ("form") and dotted keys ("form.style")
+     */
     public function get(string $key, $default = null)
     {
-        return $this->config[$key] ?? $default;
+        // No dot = direct key lookup (backwards compatible)
+        if (!str_contains($key, '.')) {
+            return $this->config[$key] ?? $default;
+        }
+
+        // Dot notation: walk through nested arrays
+        $parts = explode('.', $key);
+        $value = $this->config;
+
+        foreach ($parts as $part) {
+            if (!is_array($value) || !array_key_exists($part, $value)) {
+                return $default;
+            }
+            $value = $value[$part];
+        }
+
+        return $value;
     }
 }
