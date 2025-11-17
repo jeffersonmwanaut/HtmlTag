@@ -15,9 +15,9 @@ class FormBuilder
 
     public function create(object $entity, string $action = '#', string $method = 'post'): Form
     {
-        $styleConfig = $this->config->get('form')['style'] ?? null;
-        $form = new Form($action, $method, styleConfig: $styleConfig);
+        $form = new Form($action, $method, config: $this->config);
 
+        // -------- build based on entity fields --------
         // Use reflection to get the properties of the entity
         $reflectionClass = new \ReflectionClass($entity);
         $properties = $reflectionClass->getProperties();
@@ -27,74 +27,79 @@ class FormBuilder
 
             $propertyName = $property->getName();
             $propertyType = $property->getType();
-            
-            // Create input based on property type
-            $inputType = 'text'; // Default input type
             $label = new Label(for: $propertyName, text: $propertyName); // Create a label from the property name
-
-            if ($propertyType) {
-                $typeName = $propertyType->getName();
-                switch ($typeName) {
-                    case 'int':
-                    case 'float':
-                        $inputType = 'number';
-                        break;
-                    case 'bool':
-                        $inputType = 'checkbox';
-                        break;
-                    case 'array':
-                        $inputType = 'select';
-                        break;
-                }
-            }
+            
+            // determine input type
+            $inputType = $this->inferInputType($propertyType);
 
             // Safely get property value (only if initialized)
-            $value = null;
-            if ($property->isInitialized($entity)) {
-                $value = $property->getValue($entity);
-            }
+            $value = $property->isInitialized($entity)
+                ? $property->getValue($entity)
+                : null;
 
-            // ✅ Use textarea if configured
+            // Use textarea if configured
             if ($this->isTextareaField($propertyName)) {
                 $textarea = new Textarea(name: $propertyName, id: $propertyName);
-                if ($value !== null) {
-                    $textarea->appendText($value);
-                }
+                $textarea->appendText((string)$value);
                 $form->addControl(control: $textarea, label: $label);
+                continue;
             }
-            elseif ($inputType === 'select') {
+
+            if ($inputType === 'select') {
                 $select = new Select(name: $propertyName, id: $propertyName);
-                $getter = 'get' . ucfirst($propertyName);
-                $options = method_exists($entity, $getter) ? $entity->$getter() : (is_array($value) ? $value : []);
+                $options = $this->getSelectOptions($entity, $propertyName, $value);
                 foreach ($options as $key => $text) {
-                    $optionValue = is_string($key) ? $key : $text;
-                    $select->appendChild(new Option(value: $optionValue, text: $text));
+                    $select->appendChild(new Option(value: $key, text: $text));
                 }
                 $form->addControl(control: $select, label: $label);
+                continue;
             }
-            elseif ($inputType === 'checkbox') {
-                $input = new Input(type: 'checkbox', name: $propertyName, id: $propertyName);
-                if ($value === true) {
-                    $input->attr('checked', true);
-                }
-                $form->addControl(control: $input, label: $label);
+
+            $input = new Input(type: $inputType, name: $propertyName, id: $propertyName);
+
+            if ($inputType === 'checkbox' && $value === true) {
+                $input->attr('checked', true);
             }
-            else {
-                $input = new Input(type: $inputType, name: $propertyName, id: $propertyName);
-                if ($value !== null) {
-                    $input->attr('value', $value);
-                }
-                $form->addControl(control: $input, label: $label);
+
+            if ($value !== null && $inputType !== 'checkbox') {
+                $input->attr('value', $value);
             }
+
+            $form->addControl($input, $label);
         }
 
         return $form;
     }
 
+    private function inferInputType(?\ReflectionNamedType $type): string
+    {
+        if (!$type) {
+            return 'text';
+        }
+
+        return match ($type->getName()) {
+            'int', 'float' => 'number',
+            'bool'         => 'checkbox',
+            'array'        => 'select',
+            default        => 'text'
+        };
+    }
+
+    private function getSelectOptions(object $entity, string $propertyName, mixed $value): array
+    {
+        $getter = 'get' . ucfirst($propertyName);
+
+        if (method_exists($entity, $getter)) {
+            return $entity->$getter();
+        }
+
+        return is_array($value) ? $value : [];
+    }
+
     public function isTextareaField(string $fieldName): bool
     {
-        $normalized = strtolower($fieldName);
-        return in_array($normalized, array_map('strtolower', $this->config->get('form')['textareaHints']), true);
+        $hints = $this->config->get('form.textareaHints') ?? [];
+        return in_array(strtolower($fieldName), array_map('strtolower', $hints));
     }
 
 }
