@@ -10,6 +10,8 @@ class Button extends HtmlTag
         $this->attr('type', strtolower($type));
         if ($value !== '') {
             $this->appendText($value);
+        } else {
+            $this->appendText(ucfirst(strtolower($type)));
         }
         if ($name !== '') {
             $this->attr('name', $name);
