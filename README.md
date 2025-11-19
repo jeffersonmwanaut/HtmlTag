@@ -411,6 +411,29 @@ Property names like `isEmployee`, `firstName`, or `last_name` are automatically 
 
 The builder supports both camelCase and snake_case formats.
 
+### Built-in CSRF Protection
+
+Forms include automatic Cross-Site Request Forgery (CSRF) protection.
+A hidden input field (`_csrf_token`) is automatically inserted in every form unless disabled.
+
+Example of how to add CSRF:
+
+```php
+$token = bin2hex(random_bytes(32));
+$form->addCsrfToken($token);
+```
+
+or in Laravel:
+
+```php
+$form->addCsrfToken(csrf_token());
+```
+
+or in Symfony:
+
+```php
+$form->addCsrfToken($csrfTokenManager->getToken('form')->getValue());
+```
 
 ## Summary of Common Methods
 
