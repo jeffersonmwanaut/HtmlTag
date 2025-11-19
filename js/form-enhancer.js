@@ -5,17 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const framework = form.dataset.enhanceStyle;
 
     switch (framework) {
-      case 'bootstrap':
-        applyBootstrap(form);
-        break;
-      case 'tailwind':
-        applyTailwind(form);
-        break;
-      case 'material':
-        applyMaterial(form);
-        break;
-      default:
-        console.warn(`Unknown style framework: ${framework}`);
+      case 'bootstrap': applyBootstrap(form); break;
+      case 'tailwind': applyTailwind(form); break;
+      case 'material': applyMaterial(form); break;
     }
   });
 });
