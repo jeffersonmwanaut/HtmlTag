@@ -404,7 +404,7 @@ Generated HTML Output:
 </div>
 ```
 
-### Automatic Label Formatting
+#### Automatic Label Formatting
 
 Property names like `isEmployee`, `firstName`, or `last_name` are automatically converted to:
 
