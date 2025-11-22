@@ -1,10 +1,6 @@
 {
     "form":
     {
-        "style": {
-            "type": "framework", 
-            "name": "bootstrap" 
-        },
         "textareaHints": [
             "description",
             "comment",
