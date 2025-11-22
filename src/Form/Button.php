@@ -3,7 +3,7 @@ namespace HtmlTag\Form;
 
 use HtmlTag\HtmlTag;
 
-class Button extends HtmlTag
+class Button extends FormControl
 {
     public function __construct(string $type = 'button',  string $name = '', string $id = '', string $value = '') {
         parent::__construct('button');
