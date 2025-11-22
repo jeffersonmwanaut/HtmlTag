@@ -317,7 +317,7 @@ Generates HTML automatically:
 </form>
 ```
 
-### Configuration
+#### Configuration
 
 You can define your form behavior through the `config.json` file located outside the `src/` folder.
 
@@ -327,19 +327,17 @@ Example: `config.json`
 {
     "form":
     {
-        "style": {
-            "type": "framework", 
-            "name": "bootstrap" 
-        }
+        "textareaHints": [
+            "description",
+            "comment",
+            "detail",
+            "bio"
+        ]
     }
 }
 ```
 
-You can change `"type": "framework"` to `"custom"` if you want to use your own CSS class, e.g.:
-
-```json
-"style": { "type": "custom", "name": "my-form-styles" }
-```
+This configuration tells the `FormBuilder` which field it should render as textarea.
 
 **Loading via Dependency Injection**
 
@@ -353,52 +351,57 @@ $formBuilder = new FormBuilder($config);
 $form = $formBuilder->create($person);
 ```
 
-### Styling Support
+#### Styling Support
 
-You can style forms using popular frameworks or custom classes.
-`Form` and `FormBuilder` read the preferred style from the config file or can be changed at runtime.
+`FormBuilder` can generate stylized HTML forms for entities. It inspects an entity using PHP Reflection and generates form controls based on:
 
-**Supported Styles**
+- Property type hints (`int`, `string`, `bool`, `array`)
+- Form attributes (e.g. `#[Input]`, `#[Select]`, `#[Textarea]`, `#[Button]`)
+- Wrapper options, allowing developers to control how each field is rendered
 
-| Style Option | Description                                                   |
-| ------------ | ------------------------------------------------------------- |
-| `bootstrap`  | Adds Bootstrap 5 classes (`form-group`, `form-control`, etc.) |
-| `tailwind`   | Adds TailwindCSS utility classes                              |
-| `custom`     | Applies developer-defined classes                             |
-| `none`       | Outputs raw HTML without styling                              |
+This allows you to define the entire form in your Entity class.
 
-Example configuration:
+Example Entity With Attributes:
 
-```json
+```php
+class UserEntity
 {
-    "form":
-    {
-        "style": {
-            "type": "framework", 
-            "name": "bootstrap" 
-        }
-    }
+    #[Input(type: 'text', wrapperClass: 'mb-3')]
+    private string $username;
+
+    #[Input(type: 'email', wrapperClass: 'mb-3', required: true)]
+    private string $email;
+
+    #[Select(wrapperClass: 'mb-3')]
+    private array $roles = [];
+
+    #[Textarea(wrapper: 'div', wrapperClass: 'mb-3')]
+    private string $bio;
 }
 ```
 
-Add this at the bottom of your page or in your layout:
+Generated HTML Output:
 
 ```html
-<script src="js/form-enhancer.js"></script>
-```
+<div class="mb-3">
+    <label for="username">Username</label>
+    <input type="text" name="username" id="username">
+</div>
 
-It will automatically detect any form with `data-enhance-style`.
+<div class="mb-3">
+    <label for="email">Email</label>
+    <input type="email" name="email" id="email" required>
+</div>
 
-**Example Rendered Output (Bootstrap mode)**
+<div class="mb-3">
+    <label for="roles">Roles</label>
+    <select name="roles" id="roles"></select>
+</div>
 
-```html
-<form action="/submit.php" method="post" enctype="multipart/form-data" data-enhance-style="bootstrap">
-  <div class="mb-3">
-    <label for="name" class="form-label">Name</label>
-    <input name="name" type="text" class="form-control">
-  </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+<div class="mb-3">
+    <label for="bio">Bio</label>
+    <textarea name="bio" id="bio"></textarea>
+</div>
 ```
 
 ### Automatic Label Formatting
