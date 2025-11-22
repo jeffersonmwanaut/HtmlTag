@@ -29,14 +29,66 @@ class Form extends HtmlTag
         }
     }
 
-    public function addControl(FormControl $control, Label $label = null): self
+    public function addControl(FormControl $control, Label $label = null, ?string $wrapperClass = null): self
     {
         $div = new HtmlTag('div');
+
+        if ($wrapperClass !== null) {
+            $div->attr('class', $wrapperClass);
+        }
+
         if ($label !== null) {
             $div->appendChild($label);
         }
         $div->appendChild($control);
         $this->appendChild($div);
+        return $this;
+    }
+
+    public function appendControl(
+        FormControl $control, 
+        Label $label = null, 
+        ?string $wrapper = 'div', 
+        ?string $wrapperClass = null, 
+        string $labelPosition = 'before' // 'before' or 'after'
+    ): self
+    {
+        // If no wrapper requested, append directly
+        if ($wrapper === null) {
+            if ($label !== null && $labelPosition === 'before') {
+                $this->appendChild($label);
+            }
+
+            $this->appendChild($control);
+
+            if ($label !== null && $labelPosition === 'after') {
+                $this->appendChild($label);
+            }
+
+            return $this;
+        }
+
+        // Create wrapper element dynamically
+        $wrapperTag = new HtmlTag($wrapper);
+
+        if ($wrapperClass !== null) {
+            $wrapperTag->attr('class', $wrapperClass);
+        }
+
+        // Insert label first or last
+        if ($label !== null && $labelPosition === 'before') {
+            $wrapperTag->appendChild($label);
+        }
+
+        $wrapperTag->appendChild($control);
+
+        if ($label !== null && $labelPosition === 'after') {
+            $wrapperTag->appendChild($label);
+        }
+
+        // Add wrapper to form
+        $this->appendChild($wrapperTag);
+
         return $this;
     }
 
