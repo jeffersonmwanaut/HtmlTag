@@ -11,22 +11,53 @@ class Form extends HtmlTag
     public function __construct(string $action = '#', string $method = 'post', ?Config $config = null) 
     {
         parent::__construct('form');
-        $this->attr('action', $action);
-        $this->attr('method', strtolower($method));
+        $this->setAction($action);
+        $this->setMethod($method);
 
         if (strtolower($method) === 'post') {
-            $this->attr('enctype', 'multipart/form-data');
+            $this->setEnctype('multipart/form-data');
         }
 
         if ($config) {
-            $this->config = $config;
-
-            // Apply styling based on configuration
-            $styleConfig = $config->get('form.style');
-            if ($styleConfig) {
-                $this->applyStyleConfig($styleConfig);
-            }
+            $this->setConfig($config);
         }
+    }
+
+    public function setAction(string $action): self
+    {
+        $this->attr('action', $action);
+        return $this;
+    }
+
+    public function setMethod(string $method): self
+    {
+        $this->attr('method', strtolower($method));
+        return $this;
+    }
+
+    public function setEnctype(string $enctype): self
+    {
+        $this->attr('enctype', $enctype);
+        return $this;
+    }
+
+    public function getConfig(): Config
+    {
+        return $this->config;
+    }
+
+    public function setConfig(Config $config): self
+    {
+        $this->config = $config;
+
+        $this->config = $config;
+
+        // Apply styling based on configuration
+        $styleConfig = $config->get('form.style');
+        if ($styleConfig) {
+            $this->applyStyleConfig($styleConfig);
+        }
+        return $this;
     }
 
     public function addControl(FormControl $control, Label $label = null, ?string $wrapperClass = null): self
