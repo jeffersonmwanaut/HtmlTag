@@ -23,6 +23,13 @@ class FormBuilder
         $properties = $reflectionClass->getProperties();
 
         foreach ($properties as $property) {
+            // -----------------------------------------------------
+            // Only include properties with attribute #[FormControl]
+            // -----------------------------------------------------
+            if (empty($property->getAttributes(\HtmlTag\Form\Attributes\FormControl::class))) {
+                continue;
+            }
+
             $property->setAccessible(true);
 
             $propertyName = $property->getName();
@@ -43,13 +50,28 @@ class FormBuilder
             foreach ($attributes as $attr) {
                 $attrInstance = $attr->newInstance();
 
-                $labelPosition = $attrInstance->toArray()['labelPosition'] ?? 'before';
-                $wrapper = $attrInstance->toArray()['wrapper'] ?? 'div';
-                $wrapperClass = $attrInstance->toArray()['wrapperClass'] ?? null;
+                // Skip the marker attribute itself — it's only used to include the property
+                if ($attrInstance instanceof \HtmlTag\Form\Attributes\FormControl) {
+                    continue;
+                }
+
+                // Being defensive: only call toArray() if attribute provides it
+                $data = [];
+                if (method_exists($attrInstance, 'toArray')) {
+                    $data = $attrInstance->toArray();
+                }
+
+                $labelPosition = $data['labelPosition'] ?? 'before';
+                $wrapper       = $data['wrapper'] ?? 'div';
+                $wrapperClass  = $data['wrapperClass'] ?? null;
+
+                //$labelPosition = $attrInstance->toArray()['labelPosition'] ?? 'before';
+                //$wrapper = $attrInstance->toArray()['wrapper'] ?? 'div';
+                //$wrapperClass = $attrInstance->toArray()['wrapperClass'] ?? null;
 
                 // BUTTON ATTRIBUTE → create <button>
                 if ($attrInstance instanceof \HtmlTag\Form\Attributes\Button) {
-                    $button = new Button(type: $attrInstance->toArray()['type'] ?? 'button');
+                    $button = new Button(type: $data['type'] ?? 'button');
 
                     // Apply attributes dynamically
                     $this->applyAttributeToControl($attrInstance, $button);
@@ -62,7 +84,7 @@ class FormBuilder
                 // INPUT ATTRIBUTE → create <input>
                 if ($attrInstance instanceof \HtmlTag\Form\Attributes\Input) {
                     $input = new Input(
-                        type: $attrInstance->toArray()['type'] ?? 'text',
+                        type: $data['type'] ?? 'text',
                         name: $propertyName,
                         id: $propertyName
                     );
@@ -72,7 +94,7 @@ class FormBuilder
                         $input->attr('value', $value);
                     }
 
-                    $labelText = $attrInstance->toArray()['label'] ?? $propertyName;
+                    $labelText = $data['label'] ?? $propertyName;
                     $label = new Label(for: $propertyName, text: $labelText);
 
                     $form->appendControl(control: $input, label: $label, labelPosition: $labelPosition, wrapper: $wrapper, wrapperClass: $wrapperClass);
@@ -91,7 +113,7 @@ class FormBuilder
                         $textarea->appendText((string)$value);
                     }
 
-                    $labelText = $attrInstance->toArray()['label'] ?? $propertyName;
+                    $labelText = $data['label'] ?? $propertyName;
                     $label = new Label(for: $propertyName, text: $labelText);
 
                     $form->appendControl(control: $textarea, label: $label, labelPosition: $labelPosition, wrapper: $wrapper, wrapperClass: $wrapperClass);
@@ -115,7 +137,7 @@ class FormBuilder
                         $select->appendChild($option);
                     }
 
-                    $labelText = $attrInstance->toArray()['label'] ?? $propertyName;
+                    $labelText = $data['label'] ?? $propertyName;
                     $label = new Label(for: $propertyName, text: $labelText);
 
                     $form->appendControl(control: $select, label: $label, labelPosition: $labelPosition, wrapper: $wrapper, wrapperClass: $wrapperClass);
@@ -131,7 +153,7 @@ class FormBuilder
                         $input->attr('checked', true);
                     }
 
-                    $labelText = $attrInstance->toArray()['label'] ?? $propertyName;
+                    $labelText = $data['label'] ?? $propertyName;
                     $label = new Label(for: $propertyName, text: $labelText);
 
                     $form->appendControl(control: $input, label: $label, labelPosition: $labelPosition, wrapper: $wrapper, wrapperClass: $wrapperClass);
@@ -195,13 +217,69 @@ class FormBuilder
 
     private function getSelectOptions(object $entity, string $propertyName, mixed $value): array
     {
-        $getter = 'get' . ucfirst($propertyName);
+        /*$getter = 'get' . ucfirst($propertyName);
 
         if (method_exists($entity, $getter)) {
             return $entity->$getter();
         }
 
-        return is_array($value) ? $value : [];
+        return is_array($value) ? $value : [];*/
+
+        $getter = 'get' . ucfirst($propertyName);
+
+        // CASE 1 — class defines a getter returning array
+        if (method_exists($entity, $getter)) {
+            $returned = $entity->$getter();
+            if (is_array($returned)) {
+                return $returned;
+            }
+        }
+
+        // CASE 2 — property contains an array directly
+        if (is_array($value)) {
+            return $value;
+        }
+
+        // CASE 3 — nested entity with SelectOption annotations
+        if (is_object($value)) {
+            return $this->extractOptionsFromNestedObject($value);
+        }
+
+        return [];
+    }
+
+    private function extractOptionsFromNestedObject(object $obj): array
+    {
+        $refClass = new \ReflectionClass($obj);
+        $properties = $refClass->getProperties();
+
+        $valueField = null;
+        $textField = null;
+
+        foreach ($properties as $prop) {
+            foreach ($prop->getAttributes() as $attr) {
+                $instance = $attr->newInstance();
+
+                if ($instance instanceof \HtmlTag\Form\Attributes\SelectOptionValue) {
+                    $valueField = $prop;
+                }
+
+                if ($instance instanceof \HtmlTag\Form\Attributes\SelectOptionText) {
+                    $textField = $prop;
+                }
+            }
+        }
+
+        if (!$valueField || !$textField) {
+            return [];
+        }
+
+        $valueField->setAccessible(true);
+        $textField->setAccessible(true);
+
+        return [
+            $valueField->getValue($obj) => $textField->getValue($obj)
+        ];
     }
 
     public function isTextareaField(string $fieldName): bool
