@@ -3,12 +3,21 @@ namespace HtmlTag\Form;
 
 use HtmlTag\HtmlTag;
 use HtmlTag\Config;
+use HtmlTag\Form\Label;
 
 class Form extends HtmlTag
 {
     protected Config $config;
+    /**
+     * @var string|null Default wrapper for wrapping controls (e.g., 'div', 'span', etc.)
+     */
+    protected ?string $wrapper = 'div';
+    /**
+     * @var string|null Default CSS class for the wrapper element
+     */
+    protected ?string $wrapperClass = null;
 
-    public function __construct(string $action = '#', string $method = 'post', ?Config $config = null) 
+    public function __construct(?string $action = '#', ?string $method = 'post', ?Config $config = null) 
     {
         parent::__construct('form');
         $this->setAction($action);
@@ -21,6 +30,29 @@ class Form extends HtmlTag
         if ($config) {
             $this->setConfig($config);
         }
+    }
+
+    public function setWrapper(?string $wrapperTag, ?string $wrapperClass = null): self
+    {
+        $this->wrapper = $wrapperTag;
+        $this->wrapperClass = $wrapperClass;
+        return $this;
+    }
+
+    public function setWrapperClass(?string $wrapperClass): self
+    {
+        $this->wrapperClass = $wrapperClass;
+        return $this;
+    }
+
+    public function getWrapper(): ?string
+    {
+        return $this->wapper;
+    }
+
+    public function getWrapperClass(): ?string
+    {
+        return $this->wrapperClass;
     }
 
     public function setAction(string $action): self
@@ -57,6 +89,14 @@ class Form extends HtmlTag
         if ($styleConfig) {
             $this->applyStyleConfig($styleConfig);
         }
+
+        // Auto apply default wrapper if specified in config
+        $wrapperConfig = $config->get('form.wrapper');
+        if ($wrapperConfig) {
+            $tag = $wrapperConfig['tag'] ?? null;
+            $class = $wrapperConfig['class'] ?? null;
+            $this->setWrapper($tag, $class);
+        }
         return $this;
     }
 
@@ -78,12 +118,15 @@ class Form extends HtmlTag
 
     public function appendControl(
         FormControl $control, 
-        Label $label = null, 
-        ?string $wrapper = 'div', 
+        ?Label $label = null, 
+        ?string $wrapper = null, 
         ?string $wrapperClass = null, 
-        string $labelPosition = 'before' // 'before' or 'after'
+        ?string $labelPosition = 'before' // 'before' or 'after'
     ): self
     {
+        $wrapper = $wrapper ?? $this->wrapper;
+        $wrapperClass = $wrapperClass ?? $this->wrapperClass;
+
         // If no wrapper requested, append directly
         if ($wrapper === null) {
             if ($label !== null && $labelPosition === 'before') {
