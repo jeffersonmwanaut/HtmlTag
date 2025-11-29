@@ -1,6 +1,10 @@
 {
     "form":
     {
+        "wrapper": {
+            "tag": "div",
+            "class": "mb-3"
+        },
         "textareaHints": [
             "description",
             "comment",
